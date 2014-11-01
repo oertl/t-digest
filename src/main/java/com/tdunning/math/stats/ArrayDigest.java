@@ -51,6 +51,20 @@ public class ArrayDigest extends AbstractTDigest {
 
     @Override
     public void add(double x, int w) {
+    	addHelper(x, w);
+        if (centroidCount > 20 * compression) {
+            // something such as sequential ordering of data points
+            // has caused a pathological expansion of our summary.
+            // To fight this, we simply replay the current centroids
+            // in random order.
+
+            // this causes us to forget the diagnostic recording of data points
+            compress();
+        }    	
+    }
+    
+    private void addHelper(double x, int w) {
+    
         checkValue(x);
         Index start = floor(x);
         if (start == null) {
@@ -143,16 +157,6 @@ public class ArrayDigest extends AbstractTDigest {
 
                 }
             }
-
-            if (centroidCount > 20 * compression) {
-                // something such as sequential ordering of data points
-                // has caused a pathological expansion of our summary.
-                // To fight this, we simply replay the current centroids
-                // in random order.
-
-                // this causes us to forget the diagnostic recording of data points
-                compress();
-            }
         }
     }
 
@@ -213,7 +217,7 @@ public class ArrayDigest extends AbstractTDigest {
 
         Collections.shuffle(tmp, gen);
         for (Index index : tmp) {
-            reduced.add(mean(index), count(index));
+            reduced.addHelper(mean(index), count(index));
         }
 
         data = reduced.data;

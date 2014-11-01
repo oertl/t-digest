@@ -69,6 +69,20 @@ public class TreeDigest extends AbstractTDigest {
 
     @Override
     public void add(double x, int w, Centroid base) {
+    	
+    	addHelper(x, w, base);
+    	if (summary.size() > 20 * compression) {
+            // something such as sequential ordering of data points
+            // has caused a pathological expansion of our summary.
+            // To fight this, we simply replay the current centroids
+            // in random order.
+
+            // this causes us to forget the diagnostic recording of data points
+            compress();
+        }
+    }
+    
+    private void addHelper(double x, int w, Centroid base) {
         checkValue(x);
         Centroid start = summary.floor(base);
         if (start == null) {
@@ -128,16 +142,6 @@ public class TreeDigest extends AbstractTDigest {
                 summary.add(closest);
             }
             count += w;
-
-            if (summary.size() > 20 * compression) {
-                // something such as sequential ordering of data points
-                // has caused a pathological expansion of our summary.
-                // To fight this, we simply replay the current centroids
-                // in random order.
-
-                // this causes us to forget the diagnostic recording of data points
-                compress();
-            }
         }
     }
 
@@ -163,7 +167,7 @@ public class TreeDigest extends AbstractTDigest {
         }
         Collections.shuffle(tmp, gen);
         for (Centroid centroid : tmp) {
-            reduced.add(centroid.mean(), centroid.count(), centroid);
+            reduced.addHelper(centroid.mean(), centroid.count(), centroid);
         }
 
         summary = reduced.summary;

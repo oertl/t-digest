@@ -64,8 +64,16 @@ public class AVLTreeDigest extends AbstractTDigest {
     public void add(double x, int w) {
         add(x, w, (List<Double>) null);
     }
-
+    
     public void add(double x, int w, List<Double> data) {
+    	addHelper(x, w, data);
+    	if (summary.size() > 20 * compression) {
+            // may happen in case of sequential points
+            compress();
+        }
+    }
+
+    private void addHelper(double x, int w, List<Double> data) {
         checkValue(x);
         int start = summary.floor(x);
         if (start == IntAVLTree.NIL) {
@@ -130,10 +138,7 @@ public class AVLTreeDigest extends AbstractTDigest {
             }
             count += w;
 
-            if (summary.size() > 20 * compression) {
-                // may happen in case of sequential points
-                compress();
-            }
+            
         }
     }
 
@@ -162,7 +167,7 @@ public class AVLTreeDigest extends AbstractTDigest {
         }
 
         for (int node : nodes) {
-            add(centroids.mean(node), centroids.count(node), centroids.data(node));
+            addHelper(centroids.mean(node), centroids.count(node), centroids.data(node));
         }
     }
 
