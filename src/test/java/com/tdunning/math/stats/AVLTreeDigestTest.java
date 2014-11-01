@@ -403,11 +403,13 @@ public class AVLTreeDigestTest extends TDigestTest {
                         for (int i = 0; i < 100000; i++) {
                             data.add(gen.nextDouble());
                         }
+                        
+                        List<Double> unsortedData = new ArrayList<Double>(data);
                         Collections.sort(data);
 
                         for (double compression : new double[]{2, 5, 10, 20, 50, 100, 200, 500, 1000}) {
                             AVLTreeDigest dist = new AVLTreeDigest(compression);
-                            for (Double x : data) {
+                            for (Double x : unsortedData) {
                                 dist.add(x);
                             }
                             dist.compress();

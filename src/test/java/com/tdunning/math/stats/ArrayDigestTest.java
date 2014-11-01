@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -568,11 +569,13 @@ public class ArrayDigestTest extends TDigestTest {
                         for (int i = 0; i < 100000; i++) {
                             data.add(gen.nextDouble());
                         }
+                        
+                        List<Double> unsortedData = new ArrayList<Double>(data);
                         Collections.sort(data);
 
                         for (double compression : new double[]{2, 5, 10, 20, 50, 100, 200, 500, 1000}) {
                             TDigest dist = new ArrayDigest(32, compression);
-                            for (Double x : data) {
+                            for (Double x : unsortedData) {
                                 dist.add(x);
                             }
                             dist.compress();
